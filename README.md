@@ -20,7 +20,7 @@ Numpad- - Decrease game speed <br />
 Numpad / - Set game speed to default (normal speed) <br />
 ] - Step a frame while paused. (this also reloads the input file so you can make changes to future inputs while framestepping.)<br/>
 
-# Note: You may use multiple input files. Create a folder called Includes in the directory where webbed.exe is. Create files in here and name them anything with an extension of .rec
+# Note: You may use multiple input files. Create a folder called Includes in the directory where Ato.exe is. Create files in here and name them anything with an extension of .rec
 # But note that multi-level applies from the main input file only, so included input files may not read from another file.
 
 --------------------------------------------------------
