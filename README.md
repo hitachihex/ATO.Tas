@@ -15,9 +15,9 @@ Numpad9 - Unpause
 
 F3 - Start/Stop playback (toggle), reads from Ato.rec where the game executable is located.
 
-Numpad+ - Increase game speed
-Numpad- - Decrease game speed
-Numpad / - Set game speed to default (normal speed)
+Numpad+ - Increase game speed <br />
+Numpad- - Decrease game speed <br />
+Numpad / - Set game speed to default (normal speed) <br />
 ] - Step a frame while paused. (this also reloads the input file so you can make changes to future inputs while framestepping.)<br/>
 
 # Note: You may use multiple input files. Create a folder called Includes in the directory where webbed.exe is. Create files in here and name them anything with an extension of .rec
