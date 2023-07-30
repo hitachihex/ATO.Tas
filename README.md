@@ -47,6 +47,7 @@ Accepted commands are: <br />
     RightP - single frame right press. <br />
     Up <br />
     UpP - single frame up press. <br />
+    Down <br />
     DownP - single frame down press.. <br />
     Jump <br />
     UnJump - presses and releases jump on the same frame. <br />
