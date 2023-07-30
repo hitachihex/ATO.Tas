@@ -1,7 +1,9 @@
 # ATO.Tas
 
+Usage:
 Create a file called Ato.rec where the game executable is located (it does not create it for you)
 
+Run Ato.Injector.exe after you launch the game.
 If the game is ran as administrator, then you will need to run the injector as administrator too, otherwise privileges don't matter.
 
 Default hotkeys:
