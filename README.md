@@ -6,7 +6,7 @@ If the game is ran as administrator, then you will need to run the injector as a
 
 Default hotkeys:
 
-F1 - Paue
+F1 - Pause
 
 Numpad9 - Unpause
 
