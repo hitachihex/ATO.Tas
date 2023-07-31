@@ -1,5 +1,8 @@
 # ATO.Tas
 
+This tool was created for version 1.01 of the game, the version is displayed in the window title in the top left corner.
+It does signature scan to attempt to work on any version, but there are no guarantees.
+
 Usage:
 Create a file called Ato.rec where the game executable is located (it does not create it for you)
 
