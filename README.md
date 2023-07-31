@@ -6,6 +6,10 @@ Create a file called Ato.rec where the game executable is located (it does not c
 Run Ato.Injector.exe after you launch the game.
 Run Buggy after you've ran the injector. If it spits out garbage on the window, just right click the directional icon in the top left and click redo.
 If the game is ran as administrator, then you will need to run the injector as administrator too, otherwise privileges don't matter.
+Place ato.tas.conf (it is auto created if you do not, with default hotkeys) in the directory where the game executable is.
+
+See here for a list of virtual key codes to use:
+https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
 Default hotkeys:
 
