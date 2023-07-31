@@ -74,7 +74,7 @@ void __cdecl YoYoUpdate_Hook()
 
 
 
-	if (GetAsyncKeyState(VK_F1) & 1 && !g_bPaused)
+	if (GetAsyncKeyState(g_pause_key) & 1 && !g_bPaused)
 	{
 		g_bPaused = true;
 
@@ -88,7 +88,7 @@ void __cdecl YoYoUpdate_Hook()
 	}
 
 	// Start/Stop playback.
-	if (GetAsyncKeyState(VK_F3) & 1)
+	if (GetAsyncKeyState(g_playback_key) & 1)
 	{
 		g_pPlaybackMgr->InitPlayback(true);
 	}
@@ -100,14 +100,14 @@ void __cdecl YoYoUpdate_Hook()
 	//playerspeedboostalarm needs to be set to at least 90? and we must be holding attack.
 
 	// Set gamespeed to normal.
-	if (GetAsyncKeyState(VK_DIVIDE) & 1)
+	if (GetAsyncKeyState(g_defaultspeed_key) & 1)
 	{
 		SetDrawEnabled(true);
 		g_GameSpeedPlayerStep = 1;
 	}
 
 	// Increase game speed.
-	if (GetAsyncKeyState(VK_ADD) & 1)
+	if (GetAsyncKeyState(g_increasespeed_key) & 1)
 	{
 
 		// TODO: Make configurable hotkey crap
@@ -121,7 +121,7 @@ void __cdecl YoYoUpdate_Hook()
 	}
 
 	// Decrease game speed.
-	if (GetAsyncKeyState(VK_SUBTRACT) & 1)
+	if (GetAsyncKeyState(g_decreasespeed_key) & 1)
 	{
 		// can't go to 0
 		if (!(g_GameSpeedPlayerStep - 1))
@@ -153,7 +153,7 @@ void __cdecl YoYoUpdate_Hook()
 	if (g_bPaused)
 	{
 
-		if (GetAsyncKeyState(VK_OEM_6) & 1)
+		if (GetAsyncKeyState(g_framestep_key) & 1)
 		{
 			g_bPressedFrameStepThisFrame = true;
 			original_YoyoUpdate();
@@ -168,7 +168,7 @@ void __cdecl YoYoUpdate_Hook()
 		}
 
 		// Ugh, need a seperate unpause key. Window doesn't re-process the WM_KEYDOWN message for the original pause button.
-		if (GetAsyncKeyState(0x69) & 1)
+		if (GetAsyncKeyState(g_unpause_key) & 1)
 		{
 			g_bPaused = false;
 			DebugOutput("Unpausing.");

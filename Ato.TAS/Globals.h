@@ -20,3 +20,11 @@ extern unsigned long roomindex_addr;
 extern unsigned long onground_index;
 extern unsigned long xspeed_index;
 extern unsigned long yspeed_index;
+
+extern int g_pause_key;
+extern int g_unpause_key;
+extern int g_playback_key;
+extern int g_defaultspeed_key;
+extern int g_increasespeed_key;
+extern int g_decreasespeed_key;
+extern int g_framestep_key;

@@ -21,3 +21,11 @@ unsigned long roomindex_addr = 0;
 unsigned long onground_index = 0;
 unsigned long xspeed_index = 0;
 unsigned long yspeed_index = 0;
+
+int g_pause_key = 0x70;
+int g_unpause_key = 0x69;
+int g_playback_key = 0x72;
+int g_defaultspeed_key = 0x6F;
+int g_increasespeed_key = 0x6B;
+int g_decreasespeed_key = 0x6D;
+int g_framestep_key = 0xDD;

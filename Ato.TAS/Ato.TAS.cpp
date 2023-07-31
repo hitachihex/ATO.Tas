@@ -9,6 +9,7 @@
 #include "Ato.TAS.h"
 #include "PlaybackManager.h"
 #include <time.h>
+#include <psapi.h>
 
 // sprintf, etc
 #pragma warning(disable : 4996)
@@ -51,23 +52,151 @@ unsigned int sba_Offsets[2] = { 0x660, 0x600 };
 
 void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 {
-	atobase_addr = (unsigned long)GetModuleHandleA("Ato.exe");
+	void* base = GetModuleHandleA("Ato.exe");
+	atobase_addr = (unsigned long)base;
+	
+	MODULEINFO modinfo = { 0 };
+	GetModuleInformation(GetCurrentProcess(), (HMODULE)base, &modinfo, sizeof(modinfo));
+	auto addr = FindPattern(base, modinfo.SizeOfImage, "\xA1\x00\x00\x00\x00\x85\xC0\x0F\x84\x00\x00\x00\x00\x50\xE8\x00\x00\x00\x00\x83\xC4\x04\x85\xC0\x0F\x85\x00\x00\x00\x00\xFF\x35\x00\x00\x00\x00\x6A\x01\x6A\x04\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xFF\x35\x00\x00\x00\x00\x6A\x01\x68\x04\x10\x00\x00", "x????xxxx????xx????xxxxxxx????xx????xxxxx????x????xx????xxxxx??");
 
-	murmurhash32_addr = (atobase_addr+ATO_MURMURHASH32_RVA);
-	varnames_list_addr = (atobase_addr + ATO_VARIABLE_NAMESLIST_RVA);
-	eventloop_addr = (atobase_addr + ATO_EVENTLOOP_RVA);
-	yoyoupdate_addr = (atobase_addr + ATO_YOYOUPDATE_RVA);
-	keyholdptr_addr = (atobase_addr + ATO_KEYHOLDPTR_RVA);
-	keyreleasedptr_addr = (atobase_addr + ATO_KEYRELEASEDPTR_RVA);
-	keypressedptr_addr = (atobase_addr + ATO_KEYPRESSEDPTR_RVA);
-	currentroomptr_addr = (atobase_addr + ATO_CURRENTROOMPTR_RVA);
-	drawenabled_addr = (atobase_addr + ATO_DRAWENABLED_RVA);
-	yoyooldrandom_addr = (atobase_addr + ATO_YOYOOLDRANDOM_RVA);
-	roomrestart_addr = (atobase_addr + ATO_ROOMRESTART_RVA);
-	roomgoto_addr = (atobase_addr + ATO_ROOMGOTO_RVA);
-	globalobject_addr = (atobase_addr + ATO_GLOBAL_OBJECT_RVA);
-	instancenameslist_addr = (atobase_addr + ATO_INSTANCENAMESLIST_RVA);
-	roomindex_addr = (atobase_addr + ATO_ROOMINDEX_RVA);
+	if (addr) {
+		DebugOutput("Addr is %08X", addr);
+
+		unsigned long temp = (unsigned long)(addr);
+
+		// +0x81, start of push keyholdptr_addr
+        // +0x98, start of push keyreleaseptr_addr
+        // +0xAF, start of push keypressptr_addr
+		unsigned long kh_offs = (temp + 0x82);
+		unsigned long kr_offs = (temp + 0x99);
+		unsigned long kp_offs = (temp + 0xB0);
+
+		keyholdptr_addr = *(unsigned long*)(kh_offs);
+		keyreleasedptr_addr = *(unsigned long*)(kr_offs);
+		keypressedptr_addr = *(unsigned long*)(kp_offs);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x8B\x44\x24\x04\x8B\x54\x24\x0C\x56\x57\x8B\x7C\x24\x10\x8B\xCF\xC1\xE9\x02\x8D\x34\x88", "xxxxxxxxxxxxxxxxxxxxxx");
+
+	if (addr) {
+		DebugOutput("MurmurHash32 addr is %08X", addr);
+		murmurhash32_addr = (unsigned long)(addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\xA1\x00\x00\x00\x000\x8B\x04\xB0\xEB\x00\x33\xC0\x85\xC0\xBD\x00\x00\x00\x00", "x????xxxx?xxxxx????");
+
+	if (addr) {
+		
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long vn_offs = (temp + 0x1);
+
+		DebugOutput("VarNamesList addr is %08X", *(unsigned long*)(vn_offs));
+		varnames_list_addr = *(unsigned long*)(vn_offs);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x83\xEC\x0C\x00\x00\x00\x00\x00\x00\x00\x53\x57\x0F\x84\x00\x00\x00\x00\x56\x8B\x74\x24\x24\x00\x00\x00\x00\x00\x00\x00\x8B\x46\x08\x85\xC0", "xxx???????xxxx????xxxxx???????xxxxx");
+
+	if (addr) {
+		DebugOutput("EventLoop addr is %08X", addr);
+		eventloop_addr = (unsigned long)(addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x83\xEC\x08\x56\xE8\x00\x00\x00\x00\x8B\xF0\x8B\xCA\x2B\x35\x00\x00\x00\x00", "xxxxx????xxxxxx????");
+
+	if (addr) {
+		DebugOutput("YoyoUpdate addr is %08X", addr);
+		yoyoupdate_addr = (unsigned long)(addr);
+
+		unsigned long de_offs = (yoyoupdate_addr + 0x306);
+		drawenabled_addr = *(unsigned long*)(de_offs);
+
+		DebugOutput("DrawEnabled addr is %08X", drawenabled_addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x83\xC4\x08\xD9\x5E\x44\x3B\x3D\x00\x00\x00\x00", "xxxxxxxx????");
+
+	if (addr) {
+		
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long crp_offs = (temp + 0x08);
+
+		DebugOutput("CurrentRoomPointer address is %08X", *(unsigned long*)(crp_offs));
+		currentroomptr_addr = *(unsigned long*)(crp_offs);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x51\x56\x8B\x35\x00\x00\x00\x00\x57\x8B\x0C\xB5\x00\x00\x00\x00\x8D\x46\xFD", "xxxx????xxxx????xxx");
+
+	if (addr) {
+		DebugOutput("YoyoOldRandom addr is %08X", addr);
+
+		yoyooldrandom_addr = (unsigned long)(addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x6A\x00\x6A\x02\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x6A\x00\x6A\x02\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x6A\x00\x6A\x02\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x6A\x00\x6A\x03", "x?xxx????x????x????x?xxx????x????x????x?xxx????x????x????x?xx");
+
+	if (addr) {
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long rr_offs = (temp + 0x69F);
+
+		roomrestart_addr = *(unsigned long*)(rr_offs);
+
+		DebugOutput("RoomRestartAddr is %08X", roomrestart_addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\x8B\x44\x24\x04\x50\xA3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x83\xC4\x04\x84\xC0\x75\x00\x6A\x01\xFF\x35\x00\x00\x00\x00\x68\x00\x00\x00\x00", "xxxxxx??????????????x????xxxxxx?xxxx????x????");
+
+	if (addr) {
+		DebugOutput("RoomGoto addr is %08X", addr);
+		roomgoto_addr = (unsigned long)(addr);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\xFF\x35\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x83\xC4\x04\x83\x79\x30\x00", "xx????x????xx????xxxxxxx");
+
+	if (addr) {
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long go_offs = (temp + 0x2);
+
+		DebugOutput("GlobalObject addr is %08X", *(unsigned long*)(go_offs));
+		globalobject_addr = *(unsigned long*)(go_offs);
+	}
+
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\xC7\x46\x10\x00\x00\x00\x00\xC7\x06\x80\x00\x00\x00\xE8\x00\x00\x00\x00\x89\x35\x00\x00\x00\x00\x5E\xC3", "xxxxxxxxxxxxxx????xx????xx");
+
+	if (addr) {
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long inl_offs = (temp + 0x14);
+
+		DebugOutput("InstanceNamesList addr is %08X", *(unsigned long*)(inl_offs));
+		instancenameslist_addr = *(unsigned long*)(inl_offs);
+	}
+
+	addr = FindPattern(base, modinfo.SizeOfImage, "\xE8\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x3B\xC8\x75\x00\x6A\x01\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x70\xFE\xFF\xFF", "x????xx????xxx?xxx????x????xx????xxxx");
+
+	if (addr) {
+		unsigned long temp = (unsigned long)(addr);
+		unsigned long ria_offs = (temp + 0x07);
+
+		DebugOutput("RoomIndex addr is %08X", *(unsigned long*)(ria_offs));
+		roomindex_addr = *(unsigned long*)(ria_offs);
+	}
+
+	// Assume 1.01 if we didn't find them.
+	if(!murmurhash32_addr) murmurhash32_addr = (atobase_addr+ATO_MURMURHASH32_RVA);
+	if(!varnames_list_addr) varnames_list_addr = (atobase_addr + ATO_VARIABLE_NAMESLIST_RVA);
+	if(!eventloop_addr) eventloop_addr = (atobase_addr + ATO_EVENTLOOP_RVA);
+	if(!yoyoupdate_addr) yoyoupdate_addr = (atobase_addr + ATO_YOYOUPDATE_RVA);
+	if(!keyholdptr_addr) keyholdptr_addr = (atobase_addr + ATO_KEYHOLDPTR_RVA);
+	if(!keyreleasedptr_addr) keyreleasedptr_addr = (atobase_addr + ATO_KEYRELEASEDPTR_RVA);
+	if(!keypressedptr_addr) keypressedptr_addr = (atobase_addr + ATO_KEYPRESSEDPTR_RVA);
+	if(!currentroomptr_addr)currentroomptr_addr = (atobase_addr + ATO_CURRENTROOMPTR_RVA);
+	if(!drawenabled_addr) drawenabled_addr = (atobase_addr + ATO_DRAWENABLED_RVA);
+	if(!yoyooldrandom_addr) yoyooldrandom_addr = (atobase_addr + ATO_YOYOOLDRANDOM_RVA);
+	if(!roomrestart_addr) roomrestart_addr = (atobase_addr + ATO_ROOMRESTART_RVA);
+	if(!roomgoto_addr) roomgoto_addr = (atobase_addr + ATO_ROOMGOTO_RVA);
+	if(!globalobject_addr) globalobject_addr = (atobase_addr + ATO_GLOBAL_OBJECT_RVA);
+	if(!instancenameslist_addr) instancenameslist_addr = (atobase_addr + ATO_INSTANCENAMESLIST_RVA);
+	if(!roomindex_addr) roomindex_addr = (atobase_addr + ATO_ROOMINDEX_RVA);
 
 	*(unsigned long*)(&original_EventLoop) = eventloop_addr;
 	*(unsigned long*)(&original_YoyoUpdate) = yoyoupdate_addr;
@@ -132,6 +261,7 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 	g_pUnifDist->reset();
 
 	DumpPointersForExternalOSD();
+	ReadConfig();
 	
 }
 
@@ -395,7 +525,6 @@ void dump_variable_names(GMLRoomObjectInstance* pObject, const char* filename) {
 	fclose(fp);
 }
 
-// dwEcx = 0x
 unsigned long GetGlobalVariableIndexByName(const char* pcszVariableName, unsigned long ptr)
 {
 	unsigned long list_ptr = *(unsigned long*)(ptr);
@@ -412,4 +541,99 @@ unsigned long GetGlobalVariableIndexByName(const char* pcszVariableName, unsigne
 	}
 
 	return -1;
+}
+
+void ReadConfig()
+{
+	FILE * fp = _fsopen("ato.tas.conf", "r", _SH_DENYNO);
+	char buf[2048] = { 0 };
+	if (!fp) {
+		// file doesn't exist, create default first.
+
+		fp = _fsopen("ato.tas.conf", "w", _SH_DENYNO);
+
+		fprintf(fp, "pause=70\n");
+		fprintf(fp, "unpause=69\n");
+		fprintf(fp, "playback=72\n");
+		fprintf(fp, "defaultspeed=6F\n");
+		fprintf(fp, "increasespeed=6B\n");
+		fprintf(fp, "decreasespeed=6D\n");
+		fprintf(fp, "framestep=DD");
+		fclose(fp);
+	}
+	else {
+		int lc = 0;
+		while (true)
+		{
+			if (fgets(buf, 2048, fp) == NULL)
+				break;
+
+			buf[strcspn(buf, "\n")] = 0;
+
+			//DebugOutput("Read line from conf: %s", buf);
+
+			std::string s = buf;
+
+			size_t pause_offs = s.find("pause=");
+			size_t unpause_offs = s.find("unpause=");
+			size_t playback_offs = s.find("playback=");
+			size_t defaultspeed_offs = s.find("defaultspeed=");
+			size_t increasespeed_offs = s.find("increasespeed=");
+			size_t decreasespeed_offs = s.find("decreasespeed=");
+			size_t framestep_offs = s.find("framestep=");
+
+			if (!lc) {
+				if (pause_offs != std::string::npos) {
+					s.erase(0, 6);
+					DebugOutput("Pause hotkey=%s", s.c_str());
+					g_pause_key = std::stoi(s, 0, 16);
+				}
+			}
+
+			if (lc) {
+				if (unpause_offs != std::string::npos) {
+					s.erase(0, 8);
+					DebugOutput("Unpause hotkey=%s", s.c_str());
+					g_unpause_key = std::stoi(s, 0, 16);
+				}
+			}
+
+			if (playback_offs != std::string::npos) {
+				s.erase(0, 9);
+				DebugOutput("Playback hotkey=%s", s.c_str());
+				g_playback_key = std::stoi(s, 0, 16);
+			}
+
+			if (defaultspeed_offs != std::string::npos) 
+			{
+				s.erase(0, 13);
+				DebugOutput("Defaultspeed hotkey=%s", s.c_str());
+				g_defaultspeed_key = std::stoi(s, 0, 16);
+			}
+
+			if (increasespeed_offs != std::string::npos)
+			{
+				s.erase(0, 14);
+				DebugOutput("Increasespeed hotkey=%s", s.c_str());
+				g_increasespeed_key = std::stoi(s, 0, 16);
+			}
+
+			if (decreasespeed_offs != std::string::npos) 
+			{
+				s.erase(0, 14);
+				DebugOutput("Decreasespeed hotkey=%s", s.c_str());
+				g_decreasespeed_key = std::stoi(s, 0, 16);
+			}
+
+			if (framestep_offs != std::string::npos)
+			{
+				s.erase(0, 10);
+				DebugOutput("Framestep hotkey=%s", s.c_str());
+				g_framestep_key = std::stoi(s, 0, 16);
+			}
+			lc++;
+		}
+
+		fclose(fp);
+	}
 }

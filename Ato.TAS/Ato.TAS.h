@@ -5,6 +5,7 @@
 #include "EasyHookUtils.h"
 #include "GMEvent.h"
 #include "Globals.h"
+#include "Pattern.h"
 
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #define ExclusiveHookWithCount(a,b) MakeHookExclusive(g_ACLEntries, a, b)
@@ -76,6 +77,7 @@ VariablePointer* get_variable_by_index(unsigned long index, InstanceVariableProp
 
 extern GMLRoomObjectInstance* GetGlobalObjectInstance();
 
+extern void ReadConfig();
 extern unsigned int caGrace_Offsets[2];
 extern unsigned int sba_Offsets[2];
 
