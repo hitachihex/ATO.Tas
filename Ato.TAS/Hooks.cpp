@@ -95,6 +95,17 @@ void __cdecl YoYoUpdate_Hook()
 	
 	if (GetAsyncKeyState(VK_F9) & 1)
 	{
+		auto var_id = GetGlobalVariableIndexByName("PlayerAbility", varnames_list_addr);
+		VariablePointer* p = get_variable_by_index(var_id, GetGlobalObjectInstance()->m_pInstProps);
+		YYGS_RetValArray* pOutArray = new YYGS_RetValArray();
+		YYGString yygs;
+		yygs.Set("PlayerAbility");
+		if (p) {
+			
+			variable_global_get(pOutArray, 0x00, 0x01, 0x02, &yygs);
+			DebugOutput("PlayerAbility array pointer from get_variable_by_index at %p", p->m_pVar->valueArray);
+
+		}
 	}
 
 	//playerspeedboostalarm needs to be set to at least 90? and we must be holding attack.

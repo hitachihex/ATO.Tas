@@ -21,6 +21,8 @@ unsigned long roomindex_addr = 0;
 unsigned long onground_index = 0;
 unsigned long xspeed_index = 0;
 unsigned long yspeed_index = 0;
+unsigned long xsubpixel_index = 0;
+unsigned long ysubpixel_index = 0;
 
 int g_pause_key = 0x70;
 int g_unpause_key = 0x69;

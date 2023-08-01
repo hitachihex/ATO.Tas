@@ -532,8 +532,10 @@ void PlaybackManager::DoPlayback(bool wasFramestepped)
 			*pGrace = 5.0;
 			*pSba = 100.0;*/
 
-			*pGrace->m_Value = 5.0;
-			*pSba->m_Value = 100.0;
+			pGrace->m_pVar->valueReal = 5.0;
+			pSba->m_pVar->valueReal = 100.0;
+			//*pGrace->m_Value = 5.0;
+			//*pSba->m_Value = 100.0;
 		}
 
 
@@ -612,6 +614,11 @@ void PlaybackManager::DoPlayback(bool wasFramestepped)
 		if (m_pCurrentInput->IsDodge())
 		{
 			PressKey('Z', 0x01);
+		}
+
+		if (m_pCurrentInput->IsAttackMagic())
+		{
+			PressKey('F', 0x01);
 		}
 
 		if (m_pCurrentInput->IsMenuProceed())
@@ -743,19 +750,28 @@ void PlaybackManager::FormatManagerString()
 	VariablePointer* on_ground = NULL;
 	VariablePointer* xspeed = NULL;
 	VariablePointer* yspeed = NULL;
+	VariablePointer* ysub = NULL;
+	VariablePointer* xsub = NULL;
 
 	if (onground_index == 0) onground_index = GetInstanceVariableIDFromName("on_ground");
 	if (xspeed_index == 0) xspeed_index = GetInstanceVariableIDFromName("XSPEED"); 
 	if (yspeed_index == 0) yspeed_index = GetInstanceVariableIDFromName("YSPEED");
+	if (xsubpixel_index == 0) xsubpixel_index = GetInstanceVariableIDFromName("xSubPixel");
+	if (ysubpixel_index == 0) {
+		ysubpixel_index = GetInstanceVariableIDFromName("ySubPixel"); ysubpixel_index = 0x341;
+	}
 
 	if (pPlayerInst) {
 		on_ground = get_variable_by_index(onground_index, pPlayerInst->m_pInstProps);
 		xspeed = get_variable_by_index(xspeed_index, pPlayerInst->m_pInstProps);
 		yspeed = get_variable_by_index(yspeed_index, pPlayerInst->m_pInstProps);
+		xsub = get_variable_by_index(xsubpixel_index, pPlayerInst->m_pInstProps);
+		unsigned long temp = pPlayerInst->m_pInstProps->m_pInternal->get_raw();
+		ysub = (VariablePointer*)(temp + 0xb64);
 
-		playerInfo += "\nPosition: " + std::to_string(pPlayerInst->m_fX) + ", " + std::to_string(pPlayerInst->m_fY);
-		playerInfo += "\nSpeed: " + std::to_string(*xspeed->m_Value) + ", " + std::to_string(*yspeed->m_Value);//std::to_string(GetGlobalVariableAsDouble(0x54C)) + ", " + std::to_string(GetGlobalVariableAsDouble(0x198));
-		playerInfo += "\nGrounded: " + std::to_string(*on_ground->m_Value);
+		playerInfo += "\nPosition: " + std::to_string(pPlayerInst->m_fX) + ", " + std::to_string(pPlayerInst->m_fY) + "| XSub: " + std::to_string(xsub->m_pVar->valueReal) + ", YSub: " + std::to_string(ysub->m_pVar->valueReal);
+		playerInfo += "\nSpeed: " + std::to_string(xspeed->m_pVar->valueReal) + ", " + std::to_string(yspeed->m_pVar->valueReal);//std::to_string(GetGlobalVariableAsDouble(0x54C)) + ", " + std::to_string(GetGlobalVariableAsDouble(0x198));
+		playerInfo += "\nGrounded: " + std::to_string(on_ground->m_pVar->valueReal);
 	}
 
 	playerInfo += "\nRoomNo: " + std::to_string(*(unsigned long*)(roomindex_addr));

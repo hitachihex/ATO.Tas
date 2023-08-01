@@ -20,6 +20,8 @@ extern unsigned long roomindex_addr;
 extern unsigned long onground_index;
 extern unsigned long xspeed_index;
 extern unsigned long yspeed_index;
+extern unsigned long xsubpixel_index;
+extern unsigned long ysubpixel_index;
 
 extern int g_pause_key;
 extern int g_unpause_key;

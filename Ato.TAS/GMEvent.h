@@ -1,4 +1,5 @@
 #pragma once
+#include "GMLVariable.h"
 
 #pragma pack(push, 1)
 
@@ -108,23 +109,6 @@ protected:
 private:
 };
 
-
-// it should be 3 bytes
-class VariablePointer {
-public:
-
-	// 0x0000 - 0x0003
-	double* m_Value;
-
-	// 0x0004 - 0x0007
-	unsigned long m_Id;
-
-	// 0x0008 - 0x000B
-	unsigned long m_NameHash;
-protected:
-private:
-};
-
 class InternedVariableData {
 public:
 	// 0x0000 - 0x0003
@@ -140,6 +124,10 @@ public:
 
 class InstanceVariableInternal {
 public:
+
+	inline unsigned long get_raw() {
+		return (unsigned long)(this);
+	}
 	// 0x0000 - 0x0003
 	VariablePointer variables[0x500];
 protected:

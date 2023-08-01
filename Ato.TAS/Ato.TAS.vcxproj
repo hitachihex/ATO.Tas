@@ -158,6 +158,7 @@
     <ClInclude Include="EasyHookUtils.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GMEvent.h" />
+    <ClInclude Include="GMLVariable.h" />
     <ClInclude Include="Hooks.h" />
     <ClInclude Include="InputRecord.h" />
     <ClInclude Include="Pattern.h" />

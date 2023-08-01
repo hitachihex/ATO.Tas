@@ -481,6 +481,7 @@ unsigned long GetInstanceVariableIDFromName(const char* pcszVariableName)
 
 	pVariableInternedData = (InternedVariableData*)(dwEax + dwEcx * 4);
 
+
 	// need to come back and add the loop that is done to compare the hashes again later. for now this is ok
 	return pVariableInternedData->m_ID;
 
